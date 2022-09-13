@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+{% block indexactive %} active{% endblock %}
+
+{% block context %}
+            <div class="row gx-4 gx-lg-5 align-items-center my-5">
+                <div class="col-lg-7"><img class="img-fluid rounded mb-4 mb-lg-0" src="media/{{index_image}}" alt="..." /></div>
+                <div class="col-lg-5">
+                    <h2 class="font-weight-light">Парсер вакансий на hh.ru</h2>
+                    <p>Данный парсер позволяет делать поиск по базе данных hh.ru, просматривать список вакансий по запросу и открывать полное описание вакансий из списка, а так же смотреть статистику по ключевым навыкам</p>
+                    <a class="btn btn-secondary" href="{% url 'djangohh:search' %}">Перейти к поиску!</a>
+                </div>
+            </div>
+{% endblock %}

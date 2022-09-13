@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Контакты{% endblock %}
+{% block contactsactive %} active{% endblock %}
+
+{% block context %}
+            <div class="card black my-5 py-4 text-center">
+                <div class="card-body"><p class="text-white m-0">
+                    <form method="post" class="form-control">
+                        <br />
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <br />
+                        <input type="submit" value="Отправить сообщение" name="query" class="btn btn-secondary btn-sm">
+                        <br /><br />
+                    </form>
+                    <br /><br />
+                    <a class="btn btn-secondary btn-sm" href="{% url 'djangohh:index' %}">На главную страницу</a>
+                </div>
+            </div>
+{% endblock %}
