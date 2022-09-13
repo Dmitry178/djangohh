@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Вакансия{% endblock %}
+{% block vacactive %} active{% endblock %}
+
+{% block context %}
+            <div class="card black my-5 py-4 text-center">
+                <div class="card-body"><p class="text-white m-0">
+                    {% if vac %}
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Вакансия</th>
+                        </tr>
+                        {% for item in vac %}
+                        <tr>
+                            <td style="text-align: left;">
+                                {{item|safe}}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td style="text-align: left;">
+                                <b><a href="{{vac_url}}" target="_blank">Ссылка на вакансию</a></b>
+                            </td>
+                        </tr>
+                    </table>
+                    {% else %}
+                    <p>Вакансия не найдена</p>
+                    {% endif %}
+                    <br /><br />
+                    <a class="btn btn-secondary btn-sm" href="{% url 'djangohh:results' %}">К результатам поиска</a>
+                    <br /><br />
+                    <a class="btn btn-secondary btn-sm" href="{% url 'djangohh:search' %}">К странице поиска</a>
+                    <br /><br />
+                    <a class="btn btn-secondary btn-sm" href="{% url 'djangohh:index' %}">На главную страницу</a>
+                </div>
+            </div>
+{% endblock %}

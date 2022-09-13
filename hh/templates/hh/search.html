@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная{% endblock %}
+{% block searchactive %} active{% endblock %}
+
+{% block context %}
+            <div class="card black my-5 py-4 text-center">
+                <div class="card-body"><p class="text-white m-0">
+                    <form action="/results/" method="post" class="form-control">
+                        <br />
+                        <p>Поисковый запрос</p>
+                        <textarea name="search" cols="40" rows="3" class="form-control">{{query}}</textarea>
+                        <br />
+                        <p>Регион</p>
+                        <select id="region" name="region" class="form-control">
+                            {% for item in regions %}
+                            <option value="{{item.hh_region_id}}"{% if region == item.hh_region_id %} selected {% endif %}>{{item.region}}</option>
+                            {% endfor %}
+                        </select>
+                        <br /><br />
+                        {% csrf_token %}
+                        <input type="submit" value="Поиск вакансий" name="query" class="btn btn-secondary btn-sm">
+                        <br /><br />
+                    </form>
+                    <br /><br />
+                    <a class="btn btn-secondary btn-sm" href="{% url 'djangohh:index' %}">На главную страницу</a>
+                </div>
+            </div>
+{% endblock %}
