@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление региона{% endblock %}
+
+{% block context %}
+            <div class="card black my-5 py-4 text-left">
+                <div class="card-body">
+                    <p>Вы уверены, что хотите удалить регион <b>{{object.region}}</b></p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Да, хочу</button>
+                        </form>
+                    <br>
+                    <a href="{% url 'djangohh:region_list' %}" class="btn btn-secondary btn-sm">Нет, к списку регионов</a>
+                </div>
+            </div>
+{% endblock %}

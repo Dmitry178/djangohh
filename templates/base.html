@@ -24,6 +24,7 @@
                         <li class="nav-item"><a class="nav-link{% block indexactive %}{% endblock %}" href="{% url 'djangohh:index' %}">Главная</a></li>
                         <li class="nav-item"><a class="nav-link{% block searchactive %}{% endblock %}" href="{% url 'djangohh:search' %}">Поиск вакансий</a></li>
                         <li class="nav-item"><a class="nav-link{% block resultsactive %}{% endblock %}" href="{% url 'djangohh:results' %}">Результаты</a></li>
+                        <li class="nav-item"><a class="nav-link{% block regionsactive %}{% endblock %}" href="{% url 'djangohh:region_list' %}">Регионы</a></li>
                         <li class="nav-item"><a class="nav-link{% block contactsactive %}{% endblock %}" href="{% url 'djangohh:contacts' %}">Контакты</a></li>
                     </ul>
                 </div>

@@ -1,8 +1,11 @@
-from django.shortcuts import render, HttpResponseRedirect
-from django.urls import reverse
-from hh.models import Regions, Settings
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
+from .models import Regions, Settings
 from .forms import ContactForm
 from django.core.mail import send_mail
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic.base import ContextMixin
+from django.http import HttpResponse
 
 
 def index_view(request):
@@ -12,18 +15,33 @@ def index_view(request):
 
 def search_view(request):
     regions = Regions.objects.order_by('sort', 'region').values()
-    query = 'python'  # заглушка
-    region = 2  # заглушка
-    return render(request, 'hh/search.html', context={'query': query, 'region': region, 'regions': regions})
+    query_data = get_cookies(request)
+    return render(request, 'hh/search.html',
+                  context={'query': query_data['query'], 'region': query_data['region'], 'regions': regions})
 
 
 def results_view(request):
-    # заглушка
-    query_data = {'query': 'python', 'region': 2, 'region_name': 'Санкт-Петербург', 'found': 0, 'page': 0, 'pages': 0}
-    return render(request, 'hh/results.html', context={'query_data': query_data, 'stat': [], 'vac': []})
+    print(type(request))
+    query_data = get_cookies(request)
+    # query_data = {'region_name': 'Санкт-Петербург', 'region': 0, 'found': 0, 'page': 0, 'pages': 0}
+    if request.method == 'POST':
+        query_data['query'] = request.POST['search']
+        if request.POST['region'].isdigit():
+            query_data['region'] = int(request.POST['region'])
+        # Queries.objects.
+    else:
+        pass
+
+        # query_data['region_name'] = 'Санкт-Петербург'
+        # print(query_data)
+        # return render(request, 'hh/results.html', context={'query_data': query_data, 'stat': [], 'vac': []})
+
+    html = render(request, 'hh/results.html', context={'query_data': query_data, 'stat': [], 'vac': []})
+    set_cookies(html, query_data)
+    return html
 
 
-def vac_view(request):
+def vac_view(request, vac_id):
     vac_url = ''  # заглушка
     vac = []  # заглушка
     return render(request, 'hh/vac.html', context={'vac_url': vac_url, 'vac': vac})
@@ -49,3 +67,74 @@ def contacts_view(request):
     else:
         form = ContactForm()
     return render(request, 'hh/contacts.html', context={'form': form})
+
+
+def history_view(request):
+    return render(request, 'hh/history.html', context={})
+
+
+def set_cookies(html, query_data: {}):
+    for key, value in query_data.items():
+        html.set_cookie(key, str(value), max_age=60 * 60 * 24 * 15)
+
+
+def get_cookies(request) -> {}:
+    query_data = {'query': 'python', 'region': 0, 'found': 0, 'page': 0, 'pages': 0}
+    for key in query_data:
+        cookie = request.COOKIES.get(key)
+        if cookie is None:
+            continue
+        try:
+            cookie = int(cookie) if isinstance(query_data[key], int) else str(cookie)
+        except:
+            continue
+        query_data[key] = cookie
+    return query_data
+
+
+class NameContextMixin(ContextMixin):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['name'] = 'Регионы'
+        return context
+
+
+class RegionsListView(ListView, NameContextMixin):
+    model = Regions
+    template_name = 'hh/regions_list.html'
+    context_object_name = 'regions'
+
+    def get_queryset(self):
+        return Regions.objects.all()
+
+
+class RegionsDetailView(DetailView, NameContextMixin):
+    model = Regions
+    template_name = 'hh/regions_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        self.region_id = kwargs['pk']
+        return super().get(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Regions, pk=self.region_id)
+
+
+class RegionsCreateView(CreateView, NameContextMixin):
+    fields = '__all__'
+    model = Regions
+    success_url = reverse_lazy('djangohh:region_list')
+    template_name = 'hh/regions_create.html'
+
+
+class RegionsUpdataView(UpdateView):
+    fields = '__all__'
+    model = Regions
+    success_url = reverse_lazy('djangohh:region_list')
+    template_name = 'hh/regions_create.html'
+
+
+class RegionsDeleteView(DeleteView):
+    template_name = 'hh/regions_delete.html'
+    model = Regions
+    success_url = reverse_lazy('djangohh:region_list')
