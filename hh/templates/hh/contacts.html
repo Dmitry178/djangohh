@@ -5,8 +5,10 @@
 
 {% block context %}
             <div class="card black my-5 py-4 text-center">
-                <div class="card-body"><p class="text-white m-0">
+                <div class="card-body">
                     <form method="post" class="form-control">
+                        <br />
+                        <h4 class="form-label">Форма обратной связи</h4>
                         <br />
                         {% csrf_token %}
                         {{ form.as_p }}

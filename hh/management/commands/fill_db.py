@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import os
-from pathlib import Path
+from django.conf import settings
 from hh.models import Regions, Settings
 
 
@@ -10,8 +10,7 @@ class Command(BaseCommand):
 
         # Заполняем таблицу с настройками
         Settings.objects.all().delete()
-        # BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-        # path = os.path.join(BASE_DIR, 'media/hh/index_image.jpg')
+        # path = os.path.join(settings.BASE_DIR, 'media', 'hh', 'index_image.jpg')
         path = 'hh/index_image.jpg'
         Settings(query_default='python', hh_region_id_default=2, index_image=path).save()
         # Settings.objects.create(query_default='python', hh_region_id_default=2, index_image=path)

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Список регионов{% endblock %}
+{% block regionsactive %} active{% endblock %}
+
+{% block context %}
+            <div class="card black my-5 py-4 text-left">
+                <div class="card-body">
+                    <ul>
+                        <li style="display: block;">
+                            <h3>{{name}}</h3>
+                        </li>
+                        {% for item in regions %}
+                        <li style="display: block;">
+                            <a href="{% url 'djangohh:region_detail' pk=item.pk %}">{{item.region}}</a>&nbsp;/&nbsp;
+                            <a href="{% url 'djangohh:region_update' pk=item.pk %}">Изменить</a>&nbsp;/&nbsp;
+                            <a href="{% url 'djangohh:region_delete' pk=item.pk %}">Удалить</a>
+                        </li>
+                        {% endfor %}
+                        <br>
+                        <a href="{% url 'djangohh:region_create' %}" class="btn btn-secondary btn-sm">Создать новый регион</a>
+                    </ul>
+                </div>
+            </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Информация о регионе{% endblock %}
+
+{% block context %}
+            <div class="card black my-5 py-4 text-left">
+                <div class="card-body">
+                    <h3>{{name}}</h3>
+                    {{object.region}}
+                    <br><br>
+                    <a href="{% url 'djangohh:region_update' pk=object.pk %}">Изменить</a>
+                    <br><br>
+                    <a href="{% url 'djangohh:region_list' %}" class="btn btn-secondary btn-sm">К списку регионов</a>
+                </div>
+            </div>
+{% endblock %}
