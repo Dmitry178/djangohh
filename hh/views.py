@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from .models import Regions, Settings
@@ -9,7 +11,8 @@ from django.http import HttpResponse
 
 
 def index_view(request):
-    index_image = Settings.objects.all()[0].index_image
+    # index_image = Settings.objects.all()[0].index_image
+    index_image = 'hh/index_image.jpg'
     return render(request, 'hh/index.html', context={'index_image': index_image})
 
 
@@ -25,6 +28,8 @@ def results_view(request):
     query_data = get_cookies(request)
     # query_data = {'region_name': 'Санкт-Петербург', 'region': 0, 'found': 0, 'page': 0, 'pages': 0}
     if request.method == 'POST':
+        # для формы CBV: form.instance.user = request.user
+        print(request.user)
         query_data['query'] = request.POST['search']
         if request.POST['region'].isdigit():
             query_data['region'] = int(request.POST['region'])
@@ -69,6 +74,8 @@ def contacts_view(request):
     return render(request, 'hh/contacts.html', context={'form': form})
 
 
+# @user_passes_test(lambda u: u.is_superuser)
+@login_required
 def history_view(request):
     return render(request, 'hh/history.html', context={})
 
@@ -120,21 +127,28 @@ class RegionsDetailView(DetailView, NameContextMixin):
         return get_object_or_404(Regions, pk=self.region_id)
 
 
-class RegionsCreateView(CreateView, NameContextMixin):
+class RegionsCreateView(LoginRequiredMixin, CreateView, NameContextMixin):
+    fields = '__all__'
+    model = Regions
+    success_url = reverse_lazy('djangohh:region_list')
+    template_name = 'hh/regions_create.html'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+class RegionsUpdateView(LoginRequiredMixin, UpdateView):
     fields = '__all__'
     model = Regions
     success_url = reverse_lazy('djangohh:region_list')
     template_name = 'hh/regions_create.html'
 
 
-class RegionsUpdataView(UpdateView):
-    fields = '__all__'
-    model = Regions
-    success_url = reverse_lazy('djangohh:region_list')
-    template_name = 'hh/regions_create.html'
-
-
-class RegionsDeleteView(DeleteView):
+class RegionsDeleteView(UserPassesTestMixin, DeleteView):
     template_name = 'hh/regions_delete.html'
     model = Regions
     success_url = reverse_lazy('djangohh:region_list')
+
+    def test_func(self):
+        return self.request.user.is_superuser
