@@ -26,6 +26,12 @@
                         <li class="nav-item"><a class="nav-link{% block resultsactive %}{% endblock %}" href="{% url 'djangohh:results' %}">Результаты</a></li>
                         <li class="nav-item"><a class="nav-link{% block regionsactive %}{% endblock %}" href="{% url 'djangohh:region_list' %}">Регионы</a></li>
                         <li class="nav-item"><a class="nav-link{% block contactsactive %}{% endblock %}" href="{% url 'djangohh:contacts' %}">Контакты</a></li>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'users:logout' %}">Выход</a></li>
+                        {% else %}
+                        <li class="nav-item"><a class="nav-link{% block loginactive %}{% endblock %}" href="{% url 'users:login' %}">Вход</a></li>
+                        <li class="nav-item"><a class="nav-link{% block registeractive %}{% endblock %}" href="{% url 'users:register' %}">Регистрация</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

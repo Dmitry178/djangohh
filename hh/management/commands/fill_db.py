@@ -9,11 +9,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Заполняем таблицу с настройками
-        Settings.objects.all().delete()
-        # path = os.path.join(settings.BASE_DIR, 'media', 'hh', 'index_image.jpg')
-        path = 'hh/index_image.jpg'
-        Settings(query_default='python', hh_region_id_default=2, index_image=path).save()
-        # Settings.objects.create(query_default='python', hh_region_id_default=2, index_image=path)
+        # Settings.objects.all().delete()
+        # # path = os.path.join(settings.BASE_DIR, 'media', 'hh', 'index_image.jpg')
+        # path = 'hh/index_image.jpg'
+        # Settings(query_default='python', hh_region_id_default=2, index_image=path).save()
+        # # Settings.objects.create(query_default='python', hh_region_id_default=2, index_image=path)
 
         # Заполняем таблицу с регионами
         regions = Regions.objects.all()

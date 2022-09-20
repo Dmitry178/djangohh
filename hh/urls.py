@@ -1,6 +1,8 @@
 from django.urls import path
 from hh import views
 
+app_name = 'hh'
+
 urlpatterns = [
     path('', views.index_view, name='index'),
     path('search/', views.search_view, name='search'),
@@ -11,6 +13,6 @@ urlpatterns = [
     path('region-list', views.RegionsListView.as_view(), name='region_list'),
     path('region-detail/<int:pk>/', views.RegionsDetailView.as_view(), name='region_detail'),
     path('region-create/', views.RegionsCreateView.as_view(), name='region_create'),
-    path('region-update/<int:pk>/', views.RegionsUpdataView.as_view(), name='region_update'),
+    path('region-update/<int:pk>/', views.RegionsUpdateView.as_view(), name='region_update'),
     path('region-delete/<int:pk>/', views.RegionsDeleteView.as_view(), name='region_delete'),
 ]
