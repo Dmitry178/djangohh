@@ -74,8 +74,8 @@ def contacts_view(request):
     return render(request, 'hh/contacts.html', context={'form': form})
 
 
-# @user_passes_test(lambda u: u.is_superuser)
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
+# @login_required
 def history_view(request):
     return render(request, 'hh/history.html', context={})
 
