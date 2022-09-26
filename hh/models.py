@@ -11,7 +11,10 @@ class Regions(models.Model):
         verbose_name_plural = 'Regions'
 
     def __str__(self):
-        return self.region
+        return f'hh id: {self.hh_region_id}, region: {self.region}'
+
+    def id(self):
+        return self.id
 
 
 class Queries(models.Model):
