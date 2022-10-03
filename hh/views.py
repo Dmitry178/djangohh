@@ -13,7 +13,8 @@ from django.http import HttpResponse
 def index_view(request):
     # index_image = Settings.objects.all()[0].index_image
     index_image = 'hh/index_image.jpg'
-    return render(request, 'hh/index.html', context={'index_image': index_image})
+    header = 'парсер вакансий на hh.ru'
+    return render(request, 'hh/index.html', context={'index_image': index_image, 'header': header})
 
 
 def search_view(request):
@@ -26,20 +27,14 @@ def search_view(request):
 def results_view(request):
     print(type(request))
     query_data = get_cookies(request)
-    # query_data = {'region_name': 'Санкт-Петербург', 'region': 0, 'found': 0, 'page': 0, 'pages': 0}
     if request.method == 'POST':
         # для формы CBV: form.instance.user = request.user
         print(request.user)
         query_data['query'] = request.POST['search']
         if request.POST['region'].isdigit():
             query_data['region'] = int(request.POST['region'])
-        # Queries.objects.
     else:
         pass
-
-        # query_data['region_name'] = 'Санкт-Петербург'
-        # print(query_data)
-        # return render(request, 'hh/results.html', context={'query_data': query_data, 'stat': [], 'vac': []})
 
     html = render(request, 'hh/results.html', context={'query_data': query_data, 'stat': [], 'vac': []})
     set_cookies(html, query_data)
@@ -110,6 +105,7 @@ class RegionsListView(ListView, NameContextMixin):
     model = Regions
     template_name = 'hh/regions_list.html'
     context_object_name = 'regions'
+    paginate_by = 10
 
     def get_queryset(self):
         return Regions.objects.all()

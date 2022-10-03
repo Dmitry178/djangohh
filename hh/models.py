@@ -17,10 +17,26 @@ class Regions(models.Model):
         return self.id
 
 
+# class StatManager(models.Manager):
+#     def get_queryset(self):
+#         stat_objects = super().get_queryset()
+#         return stat_objects.filter(has_stat=True)
+#
+#
+# class HasStatMixin(models.Model):
+#     objects = models.Manager()
+#     stat_objects = StatManager()
+#     has_stat = models.BooleanField(default=False)
+#
+#     class Meta:
+#         abstract = True
+
+
 class Queries(models.Model):
     region_id = models.ForeignKey(Regions, on_delete=models.PROTECT)
     query = models.CharField(max_length=100, blank=False)
-    scan_date = models.DateTimeField(auto_now=True)
+    # scan_date = models.DateTimeField(auto_now=True)
+    scan_date = models.DateTimeField()
 
     class Meta:
         verbose_name = 'Query'
