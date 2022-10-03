@@ -25,6 +25,20 @@
                         <a href="{% url 'djangohh:region_create' %}" class="btn btn-secondary btn-sm">Создать новый регион</a>
                         {% endif %}
                     </ul>
+
+                    {% if is_paginated %}
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1" class="page-link">&laquo;&laquo;</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo;</a>
+                        {% endif %}
+                        <a href="#" class="page-link">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</a>
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="page-link">&raquo;</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">&raquo;&raquo;</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 {% endblock %}
