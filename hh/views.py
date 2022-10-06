@@ -1,20 +1,34 @@
+import urllib
+from types import NoneType
+from urllib.parse import unquote, quote
+
+import chardet as chardet
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Sum
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from .models import Regions, Settings
+from .models import Regions, Queries, SkillsArray, Skills
 from .forms import ContactForm
 from django.core.mail import send_mail
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views.generic.base import ContextMixin
 from django.http import HttpResponse
+from . import hh_api
 
 
 def index_view(request):
     # index_image = Settings.objects.all()[0].index_image
     index_image = 'hh/index_image.jpg'
     header = 'парсер вакансий на hh.ru'
-    return render(request, 'hh/index.html', context={'index_image': index_image, 'header': header})
+
+    # queries = Queries.objects.all().order_by('-id')[:10]
+    queries = Queries.objects.select_related('region_id').order_by('-id')[:10]
+
+    queries = [{'text': query.query, 'url': quote(query.query), 'hh_region_id': query.region_id.hh_region_id,
+                'region': query.region_id.region} for query in queries]
+
+    return render(request, 'hh/index.html', context={'index_image': index_image, 'header': header, 'queries': queries})
 
 
 def search_view(request):
@@ -25,26 +39,130 @@ def search_view(request):
 
 
 def results_view(request):
-    print(type(request))
     query_data = get_cookies(request)
+
     if request.method == 'POST':
         # для формы CBV: form.instance.user = request.user
-        print(request.user)
-        query_data['query'] = request.POST['search']
+        # print(request.user)
+        query_data['page'] = 0
+        query_data['query'] = str(request.POST['search']).lower()
         if request.POST['region'].isdigit():
             query_data['region'] = int(request.POST['region'])
-    else:
-        pass
+        else:
+            query_data['region'] = 0
 
-    html = render(request, 'hh/results.html', context={'query_data': query_data, 'stat': [], 'vac': []})
+        region_id = Regions.objects.get(hh_region_id=query_data['region'])
+
+        if not len(Queries.objects.filter(query=query_data['query'], region_id=region_id)):
+            query = Queries(query=query_data['query'], region_id=region_id)
+            query.save()
+
+        query_id = Queries.objects.get(query=query_data['query'], region_id=region_id)
+    else:
+        if 'stat' in dict(request.GET):  # формирование статистики
+            # получаем словарь, где: ключи - навыки, значения - количество этих навыков в вакансиях
+            skills = hh_api.get_skills(query_data['query'], query_data['region'])
+
+            # делаем пакетное добавление навыков в таблицу, игнорируем ошибки дубликатов
+            bulk_data_s = [Skills(skill=skill) for skill in skills.keys()]
+            Skills.objects.bulk_create(bulk_data_s, ignore_conflicts=True)
+
+            # получаем id навыков
+            skills_data = Skills.objects.filter(skill__in=list(skills.keys())).all()
+
+            # формируем список для добавления в таблицу SkillsArray
+            region_id = Regions.objects.get(hh_region_id=query_data['region'])
+            query_id = Queries.objects.get(query=query_data['query'], region_id=region_id)
+            bulk_data_sa = [SkillsArray(query_id=query_id, skill_id=Skills(id=item.id), amount=skills[item.skill])
+                            for item in skills_data]
+
+            # удаляем старые данные, добавляем пакетно новые
+            SkillsArray.objects.filter(query_id=query_id).delete()
+            SkillsArray.objects.bulk_create(bulk_data_sa)
+
+            '''
+            # старый неоптимизированный код
+            region_id = Regions.objects.get(hh_region_id=query_data['region'])
+            query_id = Queries.objects.get(query=query_data['query'], region_id=region_id)
+            SkillsArray.objects.filter(query_id=query_id).delete()
+
+            for key, value in skills.items():
+                skill = Skills.objects.filter(skill=key).first()
+                if isinstance(skill, NoneType):
+                    skill = Skills(skill=key)
+                    skill.save()
+
+                skill_id = Skills.objects.get(skill=key)
+                SkillsArray.objects.create(query_id=query_id, skill_id=skill_id, amount=value)'''
+
+        if 'next' in dict(request.GET):
+            query_data['page'] = 0 if query_data['page'] + 1 >= query_data['pages'] else query_data['page'] + 1
+        if 'prev' in dict(request.GET):
+            query_data['page'] = query_data['pages'] - 1 if query_data['page'] - 1 < 0 else query_data['page'] - 1
+        if 'page' in dict(request.GET):
+            if request.GET.get('page').isdigit():
+                page = int(request.GET.get('page'))
+                if 0 < page <= query_data['pages']:
+                    query_data['page'] = page - 1
+
+        if 'query' in dict(request.GET) and 'hh_id' in dict(request.GET):
+            query_data['query'] = request.GET.get('query')
+            query_data['region'] = request.GET.get('hh_id')
+            query_data['page'] = 0
+
+        region_id = Regions.objects.get(hh_region_id=query_data['region'])
+        query_id = Queries.objects.get(query=query_data['query'], region_id=region_id)
+
+    found, pages, vac = hh_api.get_request(query_data)
+    if found:
+        query_data['found'] = found
+        query_data['pages'] = pages
+
+    region = region_id.region
+    stat = get_skills_stat(query_id)
+
+    # skills = hh_api.get_skills(query_data['query'], query_data['region'])
+    # print(skills)
+
+    html = render(request, 'hh/results.html',
+                  context={'query_data': query_data, 'region': region, 'stat': stat, 'vac': vac})
+
     set_cookies(html, query_data)
+
     return html
 
 
-def vac_view(request, vac_id):
-    vac_url = ''  # заглушка
-    vac = []  # заглушка
-    return render(request, 'hh/vac.html', context={'vac_url': vac_url, 'vac': vac})
+def get_skills_stat(query_id):
+    if isinstance(query_id, NoneType):
+        return []
+
+    # получаем сумму всех навыков
+    amount = SkillsArray.objects.filter(query_id=query_id).aggregate(Sum('amount'))
+    amount = amount['amount__sum']
+    if not amount:
+        return []
+
+    # получаем список навыков
+    min_percent = 1 * amount / 100.0
+    skills = SkillsArray.objects.select_related('skill_id').filter(query_id=query_id). \
+        filter(amount__gte=min_percent).\
+        order_by('-amount', 'skill_id__skill').all()
+
+    # упаковка полученных значений
+    ret = [[skill.skill_id.skill, round(skill.amount * 100 / amount)] for skill in skills]
+
+    return ret
+
+
+# def vac_view(request, vac_id):
+def vac_view(request):
+    vac = []
+    vac_url = ''
+    if request.method == 'GET':
+        if request.GET['id'].isdigit():
+            vac, vac_url = hh_api.get_vac(request.GET['id'])
+
+    return render(request, 'hh/vac.html', context={'vac': vac, 'vac_url': vac_url})
 
 
 def contacts_view(request):

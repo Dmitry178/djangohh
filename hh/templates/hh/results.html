@@ -12,7 +12,7 @@
                 <div class="collapse" id="collapseExample">
                     <div class="card card-body">
                         {% if stat %}
-                        <p class="text-start text-muted">Статистика по запросу "{{query_data.query}}" ({{query_data.region_name}})</p>
+                        <p class="text-start text-muted">Статистика по запросу "{{query_data.query}}" ({{region}})</p>
                         <table class="table table-striped table-sm">
                             <tr>
                                 <th class="text-start">Ключевой навык</th>
@@ -38,7 +38,7 @@
                 {% endif %}
                 <div class="card-body"><p class="text-white m-0">
                     {% if vac %}
-                    <p><b>Результаты запроса "{{query_data.query}}" ({{query_data.region}}):</b></p>
+                    <p><b>Результаты запроса "{{query_data.query}}" (регион: {{region}}):</b></p>
                     <p>Найдено вакансий: {{query_data.found}}, страница {{query_data.page|add:1}} из {{query_data.pages}}</p>
                     <table class="table table-striped">
                         <tr>

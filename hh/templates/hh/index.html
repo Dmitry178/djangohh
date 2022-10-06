@@ -15,5 +15,18 @@
                     <p>Данный парсер позволяет делать поиск по базе данных hh.ru, просматривать список вакансий по запросу и открывать полное описание вакансий из списка, а так же смотреть статистику по ключевым навыкам</p>
                     <a class="btn btn-secondary" href="{% url 'djangohh:search' %}">Перейти к поиску!</a>
                 </div>
+                {% if queries %}
+                <div>
+                    <br>
+                    <h4>Последние запросы:</h4>
+                    <ul>
+                        {% for query in queries %}
+                        <li>
+                            <a href="{% url 'djangohh:results' %}?query={{query.url}}&hh_id={{query.hh_region_id}}">{{query.text}} ({{query.region}})</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
             </div>
 {% endblock %}
