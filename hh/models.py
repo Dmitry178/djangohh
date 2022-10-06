@@ -11,7 +11,7 @@ class Regions(models.Model):
         verbose_name_plural = 'Regions'
 
     def __str__(self):
-        return f'hh id: {self.hh_region_id}, region: {self.region}'
+        return f'{self.hh_region_id} ({self.region})'
 
     def id(self):
         return self.id
@@ -36,7 +36,10 @@ class Queries(models.Model):
     region_id = models.ForeignKey(Regions, on_delete=models.PROTECT)
     query = models.CharField(max_length=100, blank=False)
     # scan_date = models.DateTimeField(auto_now=True)
-    scan_date = models.DateTimeField()
+    scan_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.id} ({self.query})'
 
     class Meta:
         verbose_name = 'Query'
@@ -44,7 +47,13 @@ class Queries(models.Model):
 
 
 class Skills(models.Model):
-    skills = models.CharField(max_length=50, unique=True, blank=False)
+    skill = models.CharField(max_length=50, unique=True, blank=False, db_index=True)
+
+    def id(self):
+        return self.id
+
+    def __str__(self):
+        return f'{self.id} ({self.skill})'
 
     class Meta:
         verbose_name = 'Skill'
@@ -54,7 +63,7 @@ class Skills(models.Model):
 class SkillsArray(models.Model):
     query_id = models.ForeignKey(Queries, on_delete=models.PROTECT)
     skill_id = models.ForeignKey(Skills, on_delete=models.PROTECT)
-    amount = models.IntegerField(unique=True, blank=False, default=0)
+    amount = models.IntegerField(blank=False, default=0)
 
 
 class Settings(models.Model):
