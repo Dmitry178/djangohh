@@ -1,8 +1,6 @@
 import urllib
 from types import NoneType
-from urllib.parse import unquote, quote
-
-import chardet as chardet
+from urllib.parse import quote
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum
@@ -121,9 +119,6 @@ def results_view(request):
     region = region_id.region
     stat = get_skills_stat(query_id)
 
-    # skills = hh_api.get_skills(query_data['query'], query_data['region'])
-    # print(skills)
-
     html = render(request, 'hh/results.html',
                   context={'query_data': query_data, 'region': region, 'stat': stat, 'vac': vac})
 
@@ -195,7 +190,7 @@ def history_view(request):
 
 def set_cookies(html, query_data: {}):
     for key, value in query_data.items():
-        html.set_cookie(key, str(value), max_age=60 * 60 * 24 * 15)
+        html.set_cookie(key, str(value).encode('utf-8'), max_age=60 * 60 * 24 * 15)
 
 
 def get_cookies(request) -> {}:
@@ -205,6 +200,7 @@ def get_cookies(request) -> {}:
         if cookie is None:
             continue
         try:
+            cookie = str(bytes(cookie).decode('utf-8'))
             cookie = int(cookie) if isinstance(query_data[key], int) else str(cookie)
         except:
             continue

@@ -61,7 +61,7 @@ class Skills(models.Model):
 
 
 class SkillsArray(models.Model):
-    query_id = models.ForeignKey(Queries, on_delete=models.PROTECT)
+    query_id = models.ForeignKey(Queries, on_delete=models.CASCADE)
     skill_id = models.ForeignKey(Skills, on_delete=models.PROTECT)
     amount = models.IntegerField(blank=False, default=0)
 

@@ -2,6 +2,10 @@
 <br>
 Заполнение данных: python manage.py fill_db<br>
 <br>
+Изменения #7:<br>
+- Установлен django-cleanup и django-rest-framework<br>
+- Добавлен стандартный набор api (ViewSet) для моделей Regions, Queries, Skills<br>
+- Добавлен requirements.txt<br>
 Изменения #6:<br>
 - Перенесена библиотека для работы с API hh.ru из проекта на flask, адаптировано под Django ORM, доработаны модели, админка<br>
 - Стал доступен поиск вакансий, запрос статистики по ключевым навыкам<br>
