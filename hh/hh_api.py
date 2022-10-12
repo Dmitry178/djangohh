@@ -143,6 +143,8 @@ def get_skills(query: str, region: int) -> dict:
         if response['key_skills']:
             for skill_item in response['key_skills']:
                 skill = str(skill_item['name']).lower()
+                if len(skill) > 50:
+                    skill = skill[:50]
                 if skill in skills:
                     skills[skill] += 1
                 else:
