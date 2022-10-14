@@ -1,5 +1,5 @@
 # from django.conf.urls import url, include
-from .models import Regions, Queries, Skills
+from .models import Regions, Queries, Skills, SkillsArray
 from rest_framework import routers, serializers, viewsets
 
 
@@ -18,4 +18,10 @@ class QueriesSerializer(serializers.HyperlinkedModelSerializer):
 class SkillsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Skills
+        fields = '__all__'
+
+
+class SkillsArraySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = SkillsArray
         fields = '__all__'

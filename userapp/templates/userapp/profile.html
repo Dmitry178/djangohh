@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block context %}
+            <script src="{% static 'js/jquery-3.6.1.min.js' %}"></script>
+            <script src="{% static 'js/my.js' %}"></script>
+            <div class="card black my-5 py-4 text-center">
+                <div class="card-body">
+                    <h3>Профиль пользователя {{object.username}}</h3>
+                    <p>Токен:
+                        <span id="token">{% if object.auth_token %} {{object.auth_token}} {% else %} не создан {% endif %}</span>
+                    </p>
+                    <form action="{% url 'users:update_token' %}">
+                        <button type="submit" class="btn btn-success btn-sm">Refresh token</button>
+                    </form>
+                    <br>
+                    <button type="button" id="ajax-btn" class="btn btn-success btn-sm">Refresh token ajax</button>
+                    <br><br>
+                    <a class="btn btn-secondary btn-sm" href="{% url 'djangohh:index' %}">На главную страницу</a>
+                </div>
+            </div>
+{% endblock %}
